@@ -83,3 +83,14 @@ Câu truyện (input)
       `prompts-mau-theo-cloudy.txt` (6 cảnh, 5 dấu SCENE BREAK).
 - [x] Reload trang không mất dữ liệu; trạng thái hoàn thành từng bước hiển thị
       đúng trên thanh điều hướng.
+
+## 6. Triển khai (hoàn thành 07/07/2026)
+
+- [x] Thực hiện hóa app thành PWA: `manifest.webmanifest` + `sw.js` (service
+      worker, chạy offline, cài được như app desktop) + `icon.svg`.
+- [x] Script chạy local 1 cú click: `CHAY-APP.bat`.
+- [x] Đưa mã nguồn lên GitHub: https://github.com/duongvh86vn/stop-motion-pipeline-studio
+- [x] Triển khai GitHub Pages (nhánh `main`, kèm `.nojekyll`):
+      **https://duongvh86vn.github.io/stop-motion-pipeline-studio/**
+- [x] Kiểm tra sau triển khai: trang chính + toàn bộ css/js/manifest/sw/icon
+      và `prompts-mau-theo-cloudy.txt` đều trả về HTTP 200.
