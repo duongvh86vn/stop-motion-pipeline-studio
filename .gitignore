@@ -1,0 +1,12 @@
+# Video tải về từ Gemini (nặng — không đưa lên git)
+output/*
+!output/GHI-CHU.md
+final-video.mp4
+list.txt
+
+# Ảnh character sheet có thể nặng — bỏ dòng dưới nếu muốn đưa ảnh lên git
+# assets/characters/*.png
+
+node_modules/
+Thumbs.db
+Desktop.ini

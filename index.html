@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Stop Motion Pipeline Studio</title>
+<meta name="theme-color" content="#14151a" />
+<link rel="manifest" href="manifest.webmanifest" />
+<link rel="icon" href="icon.svg" type="image/svg+xml" />
+<link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+
+<header class="topbar">
+  <div class="brand">🎬 <b>Stop Motion</b> Pipeline Studio</div>
+  <div class="top-actions">
+    <button id="btnLoadSample" class="btn accent" title="Nạp dự án mẫu Theo &amp; Cloudy">✨ Nạp dự án mẫu</button>
+    <button id="btnExport" class="btn">⬇ Xuất dự án</button>
+    <label class="btn" for="fileImport">⬆ Nhập dự án</label>
+    <input type="file" id="fileImport" accept=".json" hidden />
+    <button id="btnReset" class="btn danger">🗑 Xoá</button>
+  </div>
+</header>
+
+<div class="layout">
+
+  <nav id="stepNav" class="stepnav"><!-- JS render --></nav>
+
+  <main class="panels">
+
+    <!-- ============ BƯỚC 1 ============ -->
+    <section class="panel" id="panel-1">
+      <h2>1. Dự án &amp; Câu truyện <span class="hint">— input: câu truyện / story có cốt truyện</span></h2>
+      <div class="field">
+        <label>Tên dự án</label>
+        <input id="projName" type="text" placeholder="VD: Theo &amp; Cloudy — Ngôi Nhà Mới" />
+      </div>
+      <div class="field">
+        <label>Câu truyện / ý tưởng (tiếng Việt hoặc tiếng Anh — cần có cốt truyện rõ ràng)</label>
+        <textarea id="projStory" rows="7" placeholder="Kể câu truyện của bạn ở đây: mở đầu → diễn biến → cao trào → kết..."></textarea>
+      </div>
+      <div class="row">
+        <div class="field grow">
+          <label>Style (đưa ra style phù hợp — có thể thay đổi)</label>
+          <select id="projStyle"></select>
+        </div>
+        <div class="field">
+          <label>Thời lượng phim</label>
+          <select id="projDuration">
+            <option value="30">30 giây (3 cảnh)</option>
+            <option value="60" selected>60 giây (6 cảnh)</option>
+            <option value="90">90 giây (9 cảnh)</option>
+            <option value="120">120 giây (12 cảnh)</option>
+            <option value="180">180 giây (18 cảnh)</option>
+          </select>
+        </div>
+      </div>
+      <div class="field" id="styleCustomWrap" hidden>
+        <label>Mô tả style tuỳ chỉnh (tiếng Anh)</label>
+        <textarea id="projStyleCustom" rows="3" placeholder="VD: vintage 1970s stop-motion, wool felt puppets, grainy film look..."></textarea>
+      </div>
+      <p class="note">💾 Dữ liệu tự lưu vào trình duyệt. Video sẽ được tạo theo từng đoạn <b>10 giây</b> rồi nối lại — phim càng dài, càng nhiều phân cảnh 10s.</p>
+      <button class="btn primary next-step" data-next="2">Tiếp tục → Nhân vật</button>
+    </section>
+
+    <!-- ============ BƯỚC 2 ============ -->
+    <section class="panel" id="panel-2" hidden>
+      <h2>2. Nhân vật <span class="hint">— ảnh nhân vật 1..n của dự án (Character Sheet để "cố định" nhân vật)</span></h2>
+      <div class="callout">
+        Mỗi nhân vật cần <b>1 ảnh Character Sheet</b> làm tham chiếu để nhân vật đồng nhất trong mọi video:
+        <ol>
+          <li><b>Đã có ảnh gốc?</b> → bấm <i>“Prompt sheet từ ảnh gốc”</i>, dán vào ChatGPT/Gemini <b>kèm ảnh</b> để tạo sheet.</li>
+          <li><b>Chưa có ảnh?</b> → viết mô tả (tiếng Anh) rồi bấm <i>“Prompt sheet từ mô tả”</i> để tạo nhân vật mới hợp với truyện.</li>
+          <li>Tải ảnh sheet lên thẻ nhân vật bên dưới và lưu 1 bản vào thư mục <code>assets/characters/</code> của dự án.</li>
+        </ol>
+      </div>
+      <div id="charList" class="cardlist"></div>
+      <button id="btnAddChar" class="btn">➕ Thêm nhân vật</button>
+      <button class="btn primary next-step" data-next="3">Tiếp tục → Bối cảnh</button>
+    </section>
+
+    <!-- ============ BƯỚC 3 ============ -->
+    <section class="panel" id="panel-3" hidden>
+      <h2>3. Bối cảnh <span class="hint">— tạo bối cảnh ảnh / json</span></h2>
+      <div class="callout">
+        Khai báo các địa điểm chính của truyện. Với mỗi bối cảnh, bấm <i>“Prompt ảnh bối cảnh”</i> để tạo ảnh
+        tham chiếu (không có nhân vật) — giúp bối cảnh đồng nhất giữa các cảnh quay. Bước này không bắt buộc
+        nhưng rất nên làm.
+      </div>
+      <div id="locList" class="cardlist"></div>
+      <button id="btnAddLoc" class="btn">➕ Thêm bối cảnh</button>
+      <button class="btn primary next-step" data-next="4">Tiếp tục → Prompt JSON cốt truyện</button>
+    </section>
+
+    <!-- ============ BƯỚC 4 ============ -->
+    <section class="panel" id="panel-4" hidden>
+      <h2>4. Prompt tạo JSON cốt truyện <span class="hint">— khung cốt truyện + phân cảnh + visual requirements + âm thanh</span></h2>
+      <div class="callout">
+        Copy prompt dưới đây, dán vào <b>ChatGPT</b> hoặc <b>Gemini</b> (có thể đính kèm ảnh sheet nhân vật).
+        AI sẽ trả về <b>1 khối JSON</b> gồm: khung cốt truyện, bối cảnh, phân cảnh 10s (scene breakdown),
+        visual requirements và thiết kế âm thanh cho từng cảnh. Sau đó sang <b>bước 5</b> để dán JSON vào.
+      </div>
+      <div class="row">
+        <button id="btnCopyMaster" class="btn primary">📋 Copy master prompt</button>
+        <span class="note" id="masterInfo"></span>
+      </div>
+      <pre id="masterPromptOut" class="promptbox"></pre>
+      <button class="btn primary next-step" data-next="5">Tiếp tục → Nhập JSON</button>
+    </section>
+
+    <!-- ============ BƯỚC 5 ============ -->
+    <section class="panel" id="panel-5" hidden>
+      <h2>5. Nhập JSON kết quả <span class="hint">— sinh ra phân cảnh: scene breakdown</span></h2>
+      <div class="callout">
+        Dán nguyên văn JSON mà ChatGPT/Gemini trả về vào ô dưới rồi bấm <b>Kiểm tra &amp; nạp</b>.
+        App sẽ kiểm tra: đủ cảnh, mốc thời gian 0→10s liền mạch, và <b>bắt buộc có phần âm thanh</b> cho mỗi cảnh.
+      </div>
+      <textarea id="jsonIn" rows="10" placeholder='{ "title": "...", "scenes": [ ... ] }'></textarea>
+      <div class="row">
+        <button id="btnParseJson" class="btn primary">✅ Kiểm tra &amp; nạp phân cảnh</button>
+        <button id="btnSampleScenes" class="btn">🧪 Dùng phân cảnh mẫu (Theo &amp; Cloudy)</button>
+      </div>
+      <div id="jsonMsg"></div>
+      <div id="sceneSummary"></div>
+      <button class="btn primary next-step" data-next="6" id="toStep6" hidden>Tiếp tục → Prompt video 10s</button>
+    </section>
+
+    <!-- ============ BƯỚC 6 ============ -->
+    <section class="panel" id="panel-6" hidden>
+      <h2>6. Prompt video 10 giây <span class="hint">— ảnh tham chiếu + prompt → Gemini (Veo, video 10s có âm thanh)</span></h2>
+      <div class="callout warn">
+        📌 Khi tạo mỗi video trong Gemini, <b>đính kèm ảnh Character Sheet</b> của các nhân vật xuất hiện
+        trong cảnh đó (và ảnh bối cảnh nếu có) rồi dán prompt tương ứng. Mỗi prompt đã kèm sẵn mục
+        <b>Audio &amp; sound design</b> để video có đầy đủ hiệu ứng âm thanh.
+      </div>
+      <div class="row">
+        <button id="btnCopyAll" class="btn primary">📋 Copy tất cả prompt</button>
+        <button id="btnDownloadTxt" class="btn">⬇ Tải prompts.txt (cho extension chạy hàng loạt)</button>
+      </div>
+      <div id="scenePromptList"></div>
+      <button class="btn primary next-step" data-next="7">Tiếp tục → Tạo video &amp; hoàn thiện</button>
+    </section>
+
+    <!-- ============ BƯỚC 7 ============ -->
+    <section class="panel" id="panel-7" hidden>
+      <h2>7. Tạo video &amp; hoàn thiện <span class="hint">— video thường → FINAL VIDEO chủ đề stop motion</span></h2>
+      <div class="checklist">
+        <h3>A. Chuẩn bị Gemini</h3>
+        <ul>
+          <li>Đăng nhập <a href="https://gemini.google.com" target="_blank" rel="noopener">gemini.google.com</a> bằng tài khoản <b>đã nâng cấp Pro</b> (để tạo video 10 giây bằng Veo — video có âm thanh gốc: tiếng động + nhạc theo prompt).</li>
+          <li>Chọn chế độ tạo video (Veo) trong Gemini.</li>
+        </ul>
+        <h3>B. Tạo hàng loạt bằng Extension (trên Microsoft Edge — không dùng Chrome)</h3>
+        <ul>
+          <li>Cài extension <b>Gemini Automation — Auto Generate</b>:<br />
+            <a href="https://chromewebstore.google.com/detail/gemini-automation-auto-ge/jlhacppkbcmonaanlkbgipimelfbjgpb" target="_blank" rel="noopener">chromewebstore.google.com/detail/gemini-automation-auto-ge/jlhacppkbcmonaanlkbgipimelfbjgpb</a></li>
+          <li>Nạp file <code>prompts.txt</code> (tải ở bước 6) — mỗi cảnh cách nhau bằng dòng <code>========== SCENE BREAK ==========</code>.</li>
+          <li>Với các cảnh có nhân vật: đính kèm ảnh Character Sheet tương ứng trước khi chạy.</li>
+        </ul>
+        <h3>C. Kiểm tra chất lượng từng video 10s</h3>
+        <ul>
+          <li>✔ Nhân vật đúng thiết kế (so với Character Sheet), không đổi mặt/màu áo giữa các cảnh.</li>
+          <li>✔ Đúng style stop motion (chuyển động giật nhẹ kiểu 12fps, chất liệu đất sét/vải nỉ).</li>
+          <li>✔ <b>Có đầy đủ âm thanh</b>: tiếng động môi trường + hiệu ứng khớp hành động + nhạc nền.</li>
+          <li>✘ Nếu sai → tạo lại với cùng prompt, thêm 1 dòng nhấn mạnh phần bị sai.</li>
+        </ul>
+        <h3>D. Nối video &amp; xuất bản</h3>
+        <ul>
+          <li>Tải các video về thư mục <code>output/</code>, đặt tên theo thứ tự: <code>scene-01.mp4</code>, <code>scene-02.mp4</code>, ...</li>
+          <li><b>Cách 1 — CapCut:</b> kéo các cảnh theo thứ tự, thêm 1 track nhạc nền xuyên suốt (nếu muốn), chuyển cảnh cắt thẳng (hard cut) để giữ chất stop motion, xuất 4K.</li>
+          <li><b>Cách 2 — ffmpeg (PowerShell):</b>
+<pre class="promptbox small">Get-ChildItem output\scene-*.mp4 | Sort-Object Name |
+  ForEach-Object { "file '$($_.FullName)'" } | Set-Content list.txt -Encoding ascii
+ffmpeg -f concat -safe 0 -i list.txt -c copy final-video.mp4</pre></li>
+          <li>Kết quả: <b>FINAL VIDEO chủ đề Stop Motion Animation</b> — đầy đủ hiệu ứng âm thanh. 🎉</li>
+        </ul>
+      </div>
+    </section>
+
+  </main>
+</div>
+
+<div id="toast" class="toast" hidden></div>
+
+<script src="js/templates.js"></script>
+<script src="js/sample-data.js"></script>
+<script src="js/app.js"></script>
+<script>
+// PWA: đăng ký service worker (chỉ khi chạy qua http/https, bỏ qua khi mở file://)
+if ("serviceWorker" in navigator && location.protocol.startsWith("http")) {
+  navigator.serviceWorker.register("./sw.js").catch(() => {});
+}
+</script>
+</body>
+</html>

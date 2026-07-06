@@ -1,0 +1,14 @@
+{
+  "name": "Stop Motion Pipeline Studio",
+  "short_name": "SM Studio",
+  "description": "Biến câu truyện thành bộ prompt hoàn chỉnh để tạo phim stop motion bằng Gemini (video 10s có âm thanh).",
+  "lang": "vi",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#14151a",
+  "theme_color": "#14151a",
+  "icons": [
+    { "src": "icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" }
+  ]
+}

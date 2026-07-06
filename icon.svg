@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128">
+  <rect width="128" height="128" rx="24" fill="#14151a"/>
+  <!-- Clapperboard -->
+  <g transform="translate(16 22)">
+    <rect x="0" y="22" width="96" height="58" rx="8" fill="#252833" stroke="#ffb454" stroke-width="4"/>
+    <g transform="rotate(-8 8 22)">
+      <rect x="-2" y="0" width="100" height="22" rx="6" fill="#ffb454"/>
+      <path d="M10 0l14 22h12L22 0zM42 0l14 22h12L54 0zM74 0l14 22h12L86 0z" fill="#14151a"/>
+    </g>
+    <!-- Cloud (Cloudy) -->
+    <g fill="#e8eaf2">
+      <circle cx="38" cy="56" r="11"/>
+      <circle cx="52" cy="50" r="13"/>
+      <circle cx="66" cy="57" r="10"/>
+      <rect x="34" y="55" width="38" height="12" rx="6"/>
+    </g>
+    <circle cx="48" cy="53" r="2.6" fill="#14151a"/>
+    <circle cx="58" cy="53" r="2.6" fill="#14151a"/>
+    <path d="M49 60q4 3.5 8 0" stroke="#14151a" stroke-width="2" fill="none" stroke-linecap="round"/>
+  </g>
+</svg>
